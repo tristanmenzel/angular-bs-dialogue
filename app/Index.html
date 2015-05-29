@@ -22,10 +22,17 @@
 <!-- endinject -->
 <script>
     var mod = angular.module('app', ['ui.bootstrap', 'bsDialogue']);
-    mod.controller('DemoCtrl', function ($modal, dialogue) {
+    mod.config(function(dialogueDefaults){
+        dialogueDefaults.primaryButtonCss = 'btn-success';
+        dialogueDefaults.buttonCss = 'btn-primary';
+        dialogueDefaults.negativeButtonCss = 'btn-warning';
+    });
+    mod.controller('DemoCtrl', function (dialogue) {
         var vm = this;
         vm.alert = function () {
-            dialogue.alert('This is an alert');
+            dialogue.alert('This is an alert',{title:'Alert title'}).finally(function(){
+                console.log('Alert dismissed');
+            });
         };
         vm.confirm = function () {
             dialogue.confirm('Are you sure you want to do this?').then(function (response) {
