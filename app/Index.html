@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Dialogue Demo</title>
+    <!-- inject:css -->
+    <!-- endinject -->
+</head>
+<body>
+<div ng-app="app" ng-controller="DemoCtrl as vm">
+    <div class="container">
+        <h1>Dialogue Demo</h1>
+        <a class="btn btn-primary" ng-click="vm.alert()">Alert</a>
+        <a class="btn btn-success" ng-click="vm.confirm()">Confirm</a>
+        <a class="btn btn-warning" ng-click="vm.prompt()">Prompt</a>
+        <a class="btn btn-danger" ng-click="vm.custom()">Custom</a>
+    </div>
+
+
+</div>
+<!-- inject:js -->
+<!-- endinject -->
+<script>
+    var mod = angular.module('app', ['ui.bootstrap', 'bsDialogue']);
+    mod.controller('DemoCtrl', function ($modal, dialogue) {
+        var vm = this;
+        vm.alert = function () {
+            dialogue.alert('This is an alert');
+        };
+        vm.confirm = function () {
+            dialogue.confirm('Are you sure you want to do this?').then(function (response) {
+                dialogue.alert('Your response was ' + response);
+            }, function () {
+                dialogue.alert('You dismissed the dialogue');
+            });
+
+        };
+        vm.prompt = function () {
+            dialogue.prompt("What is your name?").then(function (response) {
+                dialogue.alert("Hello " + response);
+            }, function () {
+                dialogue.alert('You dismissed the dialogue');
+            });
+        };
+        vm.custom = function(){
+          dialogue.custom({
+              text: 'Custom <b>TEXT</b> <a href="//www.google.com">Google</a>',
+              buttons: [{
+                  text: 'Good',
+                  css: 'btn-success',
+                  value: 'good'
+              },{
+                  text: 'Bad',
+                  css: 'btn-danger',
+                  value: 'bad'
+              },{
+                  text: 'Ok',
+                  css: 'btn-warning',
+                  value: 'ok'
+              }],
+              title: 'Big title !'
+          }).then(function (response) {
+              dialogue.alert('Your response was ' + response);
+          }, function () {
+              dialogue.alert('You dismissed the dialogue');
+          });
+        };
+
+    });
+</script>
+</body>
+</html>
