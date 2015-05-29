@@ -16,10 +16,11 @@
     "test",
     "tests"
   ],
-  "dependencies":{
+  "dependencies": {
     "angular": "~1.3.9"
   },
   "devDependencies": {
+    "bootstrap": "~3.3.4"
   },
   "main": "dist/bs-dialogue.min.js",
   "keywords": [
