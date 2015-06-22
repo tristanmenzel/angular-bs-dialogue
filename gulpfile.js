@@ -67,6 +67,7 @@ gulp.task('vendor', ['clean'], function () {
     // Note: Order is important here so don't (do what I did) and change the order...
     var vendor = [
         'bower_components/angular/angular.js',
+        'bower_components/angular-animate/angular-animate.js',
         'vendor/ui-bootstrap/ui-bootstrap-custom-0.13.0.js',
         'vendor/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.0.js'
     ];
