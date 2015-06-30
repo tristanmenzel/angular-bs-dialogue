@@ -14,8 +14,17 @@
         <a class="btn btn-success" ng-click="vm.confirm()">Confirm</a>
         <a class="btn btn-warning" ng-click="vm.prompt()">Prompt</a>
         <a class="btn btn-danger" ng-click="vm.custom()">Custom</a>
+        <a class="btn btn-primary" ng-click="vm.template()">Template</a>
     </div>
-
+<script type="text/ng-template" id="Demo.html">
+<p>Template option</p>
+    <ul>
+        <li>One</li>
+        <li>Two</li>
+        <li>Three</li>
+        <li>Four</li>
+    </ul>
+</script>
 
 </div>
 <!-- inject:js -->
@@ -49,6 +58,13 @@
                 dialogue.alert('You dismissed the dialogue');
             });
         };
+        vm.template = function(){
+          dialogue.alert('',{
+              templateUrl: 'Demo.html',
+              title: "Templated dialogue"
+          }) ;
+        };
+
         vm.custom = function(){
           dialogue.custom({
               text: 'Custom <b>TEXT</b> <a href="//www.google.com">Google</a>',

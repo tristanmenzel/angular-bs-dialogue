@@ -6,15 +6,18 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('dialogue.html',
-    '<div class="modal-header" ng-show="title.length">\n' +
-    '    <h3 class="modal-title">{{title}}</h3>\n' +
+    '<div class="modal-header" ng-show="vm.title.length">\n' +
+    '    <h3 class="modal-title">{{vm.title}}</h3>\n' +
     '</div>\n' +
     '<div class="modal-body">\n' +
-    '    <p ng-bind-html="text"></p>\n' +
-    '    <input type="text" ng-show="prompt" ng-model="userInput"/>\n' +
+    '    <div ng-if="vm.templateUrl" ng-include="vm.templateUrl"></div>\n' +
+    '    <p ng-bind-html="vm.text" ng-if="!vm.templateUrl"></p>\n' +
+    '    <input type="text" ng-show="vm.prompt" ng-model="vm.userInput"/>\n' +
     '</div>\n' +
     '<div class="modal-footer">\n' +
-    '    <button ng-repeat="button in buttons" class="btn" ng-class="[button.css]" ng-click="buttonClicked(button)">{{button.text}}</button>\n' +
+    '    <button ng-repeat="button in vm.buttons" class="btn" ng-class="[button.css]" ng-click="vm.buttonClicked(button)">\n' +
+    '        {{button.text}}\n' +
+    '    </button>\n' +
     '</div>');
 }]);
 })();

@@ -10,93 +10,29 @@
             negativeButtonCss: 'btn-danger'
         })
         .controller("dialogueCtrl", DialogueController);
-    function Dialogue(dialogueDefaults, $modal,$sce) {
+    function Dialogue(dialogueDefaults, $modal, $sce) {
         var modalOptions = {
             templateUrl: 'dialogue.html',
-            controller: 'dialogueCtrl'
+            controller: 'dialogueCtrl as vm'
         };
         this.alert = function (text, options) {
-            var mo = angular.copy(modalOptions),
-                uo = new Options(options);
-
-            mo.resolve = {
-                title: function () {
-                    return uo.title;
-                },
-                text: function () {
-                    return $sce.trustAsHtml(text);
-                },
-                prompt: function () {
-                    return false;
-                },
-                buttons: function () {
-                    return [
-                        {
-                            text: "Ok",
-                            css: uo.primaryButtonCss
-                        }
-                    ];
-                }
-            };
-            return $modal.open(mo).result;
-
+            var o = options || {};
+            o.text = text;
+            o.buttons = "alert";
+            return this.custom(o);
         };
         this.confirm = function (text, options) {
-            var mo = angular.copy(modalOptions),
-                uo = new Options(options);
-
-            mo.resolve = {
-                title: function () {
-                    return uo.title;
-                },
-                text: function () {
-                    return $sce.trustAsHtml(text);
-                },
-                prompt: function () {
-                    return false;
-                },
-                buttons: function () {
-                    return [
-                        {
-                            text: uo.getConfirmAffirmative(),
-                            css: uo.primaryButtonCss,
-                            value: true
-                        },
-                        {
-                            text: uo.getConfirmNegative(),
-                            css: uo.buttonCss,
-                            value: false
-                        }
-                    ];
-                }
-            };
-            return $modal.open(mo).result;
+            var o = options || {};
+            o.text = text;
+            o.buttons = "confirm";
+            return this.custom(o);
         };
         this.prompt = function (text, options) {
-            var mo = angular.copy(modalOptions),
-                uo = new Options(options);
-
-            mo.resolve = {
-                title: function () {
-                    return uo.title;
-                },
-                text: function () {
-                    return $sce.trustAsHtml(text);
-                },
-                prompt: function () {
-                    return true;
-                },
-                buttons: function () {
-                    return [
-                        {
-                            text: "Ok",
-                            css: uo.primaryButtonCss,
-                            value: true
-                        }
-                    ];
-                }
-            };
-            return $modal.open(mo).result;
+            var o = options || {};
+            o.text = text;
+            o.buttons = "prompt";
+            o.prompt = true;
+            return this.custom(o);
         };
         this.custom = function (options) {
             var mo = angular.copy(modalOptions),
@@ -106,14 +42,17 @@
                 title: function () {
                     return uo.title;
                 },
+                templateUrl: function () {
+                    return uo.templateUrl;
+                },
                 text: function () {
                     return $sce.trustAsHtml(uo.text);
                 },
                 prompt: function () {
-                    return false;
+                    return uo.prompt;
                 },
                 buttons: function () {
-                    return uo.buttons;
+                    return uo.getButtons();
                 }
             };
             return $modal.open(mo).result;
@@ -127,8 +66,10 @@
             this.negativeButtonCss = o.negativeButtonCss || dialogueDefaults.negativeButtonCss;
 
             this.title = o.title || '';
-            this.text = o.text ||'';
+            this.text = o.text || '';
             this.buttons = o.buttons || [];
+            this.templateUrl = o.templateUrl;
+            this.prompt = o.prompt === true;
 
             this.confirmMode = o.confirmMode || "okCancel";
 
@@ -149,24 +90,71 @@
                         return "Cancel";
                 }
             };
+
+            this.getConfirmButtons = function () {
+                return [
+                    {
+                        text: this.getConfirmAffirmative(),
+                        css: this.primaryButtonCss,
+                        value: true
+                    },
+                    {
+                        text: this.getConfirmNegative(),
+                        css: this.buttonCss,
+                        value: false
+                    }
+                ];
+            };
+            this.getAlertButtons = function () {
+                return [
+                    {
+                        text: "Ok",
+                        css: this.primaryButtonCss
+                    }
+                ];
+            };
+            this.getPromptButtons = function () {
+                return [
+                    {
+                        text: "Ok",
+                        css: this.primaryButtonCss,
+                        value: true
+                    }
+                ];
+            };
+
+            this.getButtons = function(){
+                switch(this.buttons){
+                    case "confirm":
+                        return this.getConfirmButtons();
+                    case "alert":
+                        return this.getAlertButtons();
+                    case "prompt":
+                        return this.getPromptButtons();
+                    default:
+                        return this.buttons;
+
+                }
+            };
         }
     }
 
-    function DialogueController($scope, $modalInstance, title, text, buttons, prompt) {
-        $scope.title = title;
-        $scope.buttons = buttons;
-        $scope.text = text;
-        $scope.prompt = prompt;
-        $scope.userInput = "";
-        $scope.buttonClicked = function (button) {
+    function DialogueController($scope, $modalInstance, title, text, buttons, prompt, templateUrl) {
+        this.title = title;
+        this.buttons = buttons;
+        this.text = text;
+        this.prompt = prompt;
+        this.userInput = "";
+        this.templateUrl = templateUrl;
+        this.buttonClicked = function (button) {
             if (prompt) {
-                $modalInstance.close($scope.userInput);
+                $modalInstance.close(this.userInput);
             } else {
                 $modalInstance.close(button.value);
             }
         };
 
-        $scope.cancel = function () {
+        this.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
     }
