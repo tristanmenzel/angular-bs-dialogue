@@ -38,6 +38,7 @@
     });
     mod.controller('DemoCtrl', function (dialogue) {
         var vm = this;
+
         vm.alert = function () {
             dialogue.alert('This is an alert',{title:'Alert title'}).finally(function(){
                 console.log('Alert dismissed');
@@ -59,7 +60,8 @@
             });
         };
         vm.template = function(){
-          dialogue.alert('',{
+          dialogue({
+              buttons: 'alert',
               templateUrl: 'Demo.html',
               title: "Templated dialogue"
           }) ;

@@ -2,39 +2,46 @@
     'use strict';
 
     angular
-        .module('bsDialogue', [])
-        .service('dialogue', Dialogue)
+        .module('bsDialogue', ['ui.bootstrap'])
         .constant('dialogueDefaults', {
             primaryButtonCss: 'btn-primary',
             buttonCss: 'btn-default',
             negativeButtonCss: 'btn-danger'
         })
-        .controller("dialogueCtrl", DialogueController);
-    function Dialogue(dialogueDefaults, $modal, $sce) {
+        .factory('dialogue', DialogueFactory)
+        .controller('DialogueController', DialogueController);
+
+    function DialogueController($modalInstance, title, text, buttons, prompt, templateUrl) {
+        this.title = title;
+        this.buttons = buttons;
+        this.text = text;
+        this.prompt = prompt;
+        this.userInput = "";
+        this.templateUrl = templateUrl;
+        this.buttonClicked = function (button) {
+            if (prompt) {
+                $modalInstance.close(this.userInput);
+            } else {
+                $modalInstance.close(button.value);
+            }
+        };
+
+        this.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }
+    DialogueController.$inject = ["$modalInstance", "title", "text", "buttons", "prompt", "templateUrl"];
+
+    function DialogueFactory(dialogueDefaults, $modal, $sce) {
+
+
         var modalOptions = {
             templateUrl: 'dialogue.html',
-            controller: 'dialogueCtrl as vm'
+            controller: 'DialogueController as vm'
         };
-        this.alert = function (text, options) {
-            var o = options || {};
-            o.text = text;
-            o.buttons = "alert";
-            return this.custom(o);
-        };
-        this.confirm = function (text, options) {
-            var o = options || {};
-            o.text = text;
-            o.buttons = "confirm";
-            return this.custom(o);
-        };
-        this.prompt = function (text, options) {
-            var o = options || {};
-            o.text = text;
-            o.buttons = "prompt";
-            o.prompt = true;
-            return this.custom(o);
-        };
-        this.custom = function (options) {
+
+
+        function Dialogue(options) {
             var mo = angular.copy(modalOptions),
                 uo = new Options(options);
 
@@ -56,6 +63,29 @@
                 }
             };
             return $modal.open(mo).result;
+        }
+
+        Dialogue.alert = function (text, options) {
+            var o = options || {};
+            o.text = text;
+            o.buttons = "alert";
+            return this(o);
+        };
+        Dialogue.confirm = function (text, options) {
+            var o = options || {};
+            o.text = text;
+            o.buttons = "confirm";
+            return this(o);
+        };
+        Dialogue.prompt = function (text, options) {
+            var o = options || {};
+            o.text = text;
+            o.buttons = "prompt";
+            o.prompt = true;
+            return this(o);
+        };
+        Dialogue.custom = function (options) {
+            return this(options);
         };
 
         function Options(userOptions) {
@@ -123,8 +153,8 @@
                 ];
             };
 
-            this.getButtons = function(){
-                switch(this.buttons){
+            this.getButtons = function () {
+                switch (this.buttons) {
                     case "confirm":
                         return this.getConfirmButtons();
                     case "alert":
@@ -136,28 +166,12 @@
 
                 }
             };
+
         }
-    }
-    Dialogue.$inject = ["dialogueDefaults", "$modal", "$sce"];
 
-    function DialogueController($scope, $modalInstance, title, text, buttons, prompt, templateUrl) {
-        this.title = title;
-        this.buttons = buttons;
-        this.text = text;
-        this.prompt = prompt;
-        this.userInput = "";
-        this.templateUrl = templateUrl;
-        this.buttonClicked = function (button) {
-            if (prompt) {
-                $modalInstance.close(this.userInput);
-            } else {
-                $modalInstance.close(button.value);
-            }
-        };
-
-        this.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
+        return Dialogue;
     }
-    DialogueController.$inject = ["$scope", "$modalInstance", "title", "text", "buttons", "prompt", "templateUrl"];
+    DialogueFactory.$inject = ["dialogueDefaults", "$modal", "$sce"];
+
+
 })();
