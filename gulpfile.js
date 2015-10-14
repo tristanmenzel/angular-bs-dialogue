@@ -11,6 +11,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var notify = require('gulp-notify');
 var flatten = require('gulp-flatten');
+var minifyHtml = require('gulp-minify-html');
 
 var mapsLocation = './maps/';
 
@@ -36,7 +37,6 @@ gulp.task('js', ['clean'], function () {
         .pipe(jshint.reporter('default'))
         .pipe(jshint.reporter('fail'))
         .pipe(concat('bs-dialogue.js'))
-        .pipe(ngAnnotate())
         .pipe(dist());
 
 
@@ -45,6 +45,11 @@ gulp.task('js', ['clean'], function () {
 gulp.task('views', ['clean'], function () {
     return gulp.src('src/*.html')
         .pipe(flatten())
+        .pipe(minifyHtml({
+            empty: true,
+            spare: true,
+            quotes: true
+        }))
         .pipe(ngHtml2Js({moduleName: 'bsDialogue'}))
         .pipe(concat("bs-dialogue-views.js"))
         .pipe(dist());
@@ -55,6 +60,7 @@ gulp.task('bundle', ['js', 'views'], function () {
         'dist/bs-dialogue.js',
         'dist/bs-dialogue-views.js'])
         .pipe(sourcemaps.init())
+        .pipe(ngAnnotate())
         .pipe(concat('bs-dialogue.min.js'))
         // Note: ugilfy + sourcemaps is bugged (so you'll need to comment this out as needed).
         .pipe(uglify())
@@ -91,11 +97,7 @@ gulp.task('html', ['bundle', 'vendor'], function () {
             ], {read: false}),
             {ignorePath: 'web/', addRootSlash: false, relative: true}
         ))
-        .pipe(web())
-        .pipe(notify({
-            onLast: true,
-            message: 'Build complete'
-        }));
+        .pipe(web());
 });
 
 
