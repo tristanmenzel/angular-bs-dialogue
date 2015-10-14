@@ -15,8 +15,11 @@
         <a class="btn btn-warning" ng-click="vm.prompt()">Prompt</a>
         <a class="btn btn-danger" ng-click="vm.custom()">Custom</a>
         <a class="btn btn-primary" ng-click="vm.template()">Template</a>
+        <a class="btn btn-primary" ng-click="vm.inlineTemplate()">Inline Template</a>
+
     </div>
 <script type="text/ng-template" id="Demo.html">
+    <h1>{{model.caption}}</h1>
 <p>Template option</p>
     <ul>
         <li>One</li>
@@ -63,8 +66,26 @@
           dialogue({
               buttons: 'alert',
               templateUrl: 'Demo.html',
-              title: "Templated dialogue"
+              title: "Templated dialogue",
+              model: {
+                  caption: '123 ABC'
+              }
           }) ;
+        };
+
+        vm.inlineTemplate = function(){
+            var model = {
+                message: 'Hello world',
+                input: ''
+            };
+            dialogue({
+                buttons: 'alert',
+                template: 'The message is... <span ng-bind="model.message"></span><br /><input type="text" ng-model="model.input" />',
+                title: 'Inline template dialogue',
+                model: model
+            }).then(function(){
+                dialogue.alert('model.input is ' + model.input);
+            });
         };
 
         vm.custom = function(){

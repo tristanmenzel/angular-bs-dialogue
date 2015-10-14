@@ -9,15 +9,18 @@
             negativeButtonCss: 'btn-danger'
         })
         .factory('dialogue', DialogueFactory)
-        .controller('DialogueController', DialogueController);
+        .controller('DialogueController', DialogueController)
+        .directive('dialogueTemplate', DialogueTemplate);
 
-    function DialogueController($modalInstance, title, text, buttons, prompt, templateUrl) {
+    function DialogueController($modalInstance, title, text, buttons, prompt, templateUrl, template, model, $scope) {
         this.title = title;
         this.buttons = buttons;
         this.text = text;
         this.prompt = prompt;
         this.userInput = "";
         this.templateUrl = templateUrl;
+        this.template = template;
+        $scope.model = model;
         this.buttonClicked = function (button) {
             if (prompt) {
                 $modalInstance.close(this.userInput);
@@ -30,14 +33,27 @@
             $modalInstance.dismiss('cancel');
         };
     }
-    DialogueController.$inject = ["$modalInstance", "title", "text", "buttons", "prompt", "templateUrl"];
+
+    function DialogueTemplate($compile) {
+        return {
+            restrict: 'A',
+            link: function (scope, element) {
+                var templateHtml = scope.vm.template;
+                if (!templateHtml)
+                    return;
+                element.html(templateHtml);
+                $compile(element.contents())(scope);
+            }
+        };
+    }
 
     function DialogueFactory(dialogueDefaults, $modal, $sce) {
 
 
         var modalOptions = {
             templateUrl: 'dialogue.html',
-            controller: 'DialogueController as vm'
+            controller: 'DialogueController as vm',
+            backdrop: 'static'
         };
 
 
@@ -60,6 +76,12 @@
                 },
                 buttons: function () {
                     return uo.getButtons();
+                },
+                template: function () {
+                    return uo.template;
+                },
+                model: function(){
+                    return uo.model;
                 }
             };
             return $modal.open(mo).result;
@@ -100,6 +122,8 @@
             this.buttons = o.buttons || [];
             this.templateUrl = o.templateUrl;
             this.prompt = o.prompt === true;
+            this.template = o.template;
+            this.model = o.model;
 
             this.confirmMode = o.confirmMode || "okCancel";
 
@@ -171,7 +195,6 @@
 
         return Dialogue;
     }
-    DialogueFactory.$inject = ["dialogueDefaults", "$modal", "$sce"];
 
 
 })();
